@@ -1,0 +1,24 @@
+#!/bin/sh
+# setup cursor
+xsetroot -cursor_name left_ptr
+# screen blanking
+xset dpms 0 0 600
+# home cleanup
+rm -rf \
+/opt/home/kiosk/.bash_history \
+/opt/home/kiosk/.cache \
+/opt/home/kiosk/.config/default \
+/opt/home/kiosk/.config/mimetypes \
+/opt/home/kiosk/.config/searchengines \
+/opt/home/kiosk/.config/userscripts \
+/opt/home/kiosk/.dbus \
+/opt/home/kiosk/.fontconfig \
+/opt/home/kiosk/.local \
+/opt/home/kiosk/.ratpoison_history \
+/opt/home/kiosk/.xsession-errors
+# launch window manager Launch window manager
+ratpoison -f /opt/etc/ratpoisonrc &
+# launch xautolock
+xautolock -time 1 -locker 'dwbremote -a :only && dwbremote -a :home' &
+# launch browser
+dwb -R
