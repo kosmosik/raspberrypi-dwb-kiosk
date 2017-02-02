@@ -1,5 +1,6 @@
 # raspberrypi-dwb-kiosk
-Simple restricted web kiosk based on Raspberry Pi SBC, Raspbian and dwb web browser.
+
+Simple restricted web kiosk based on [Raspberry Pi SBC](https://www.raspberrypi.org/), [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and [dwb](https://portix.bitbucket.io/dwb/) web browser.
 
 ## Required skills
 
@@ -21,8 +22,13 @@ Most important config files and scripts are in `filesystem` directory in this re
 8. Install, configure and enable OpenSSH daemon (`apt-get install ssh`) to allow remote shell access.
 9. Install, configure and enable NTP daemon (`apt-get install ntp ntpdate`) to enable network time synchronization.
 10. Install all required software (`apt-get install xorg dwb ratpoison xautolock`).
+11. Install additional fonts if needed.
 
-## Boot config files
+### Automatic hostname
+
+A script `/etc/network/if-pre-up.d/00-hwaddr-to-hostname` is provided to change hostname to contain last three octets of hardware address (e.g. `kiosk-14d28b`) to allow easy network identification of the device. Script is run prior to starting DHCP client on network interfaces so your DHCP server will register unique kiosk name.
+
+### Boot config files
 
 If you run into trouble getting video output check options in `/boot/config.txt`. Refer to [this article](http://elinux.org/RPiconfig).
 
@@ -30,7 +36,7 @@ If you run into trouble getting video output check options in `/boot/config.txt`
 
 If you wish to have completely silent (e.g. no information, scrolling letters, logos, etc.) boot refer to `/boot/cmdline.txt` file options. You can also disable getty on first console.
 
-## Directory structure and user creation
+### Directory structure and user creation
 
 We will run kiosk user session as `kiosk` user.
 
@@ -70,6 +76,34 @@ Ratpoison config implements few keybindings:
 
 `Control+F12` keys - send command to `dwb` to quit (thus ending X session, thus restarting it via nodm)
 
+## Web browser
 
+Kiosk uses [dbw](https://portix.bitbucket.io/dwb/) web browser to display content. `dwb` is started from `xinit` and controlled with `dwbremote`. Refer to [dwb manual](https://portix.bitbucket.io/dwb/resources/manpage.html).
 
+### Dwb configuration
 
+`dwb` configuration files inside `kiosk` user's home directory are linked to files in `/opt/etc/dwb` directory. The links need to be made as `root` (or in other way not writeable by `kiosk` user).
+
+Two main files are used:
+
+`/opt/etc/dwb/keys` - this file defines (unmaps) all keyboard shortcuts - all of them are removed from user
+
+`/opt/etc/dwb/settings` - this file configures `dwb` behavior - tune it to your liking.
+
+### Security considerations
+
+In theory the user `kiosk` has no access to shell. When setting up the browser consider all possible scenarios when the user can break out of this. Pay attention to any helper programs like downloaders or scheme (e.g. mailto:, telnet: etc.) handlers. All such commands (even if unused) should be substituted with harmless `/bin/true` program. All access to local `file://` protocol should be disabled. All forms of local cache (e.g. HTML5 cache) should be disabled.
+
+Kiosk browser is not restricted to specific URL or domain. You can lock the browser with `dlock` and `durl` commands. Refer to manual.
+
+Tabbed browsing is enabled. User can open a new tab by right clicking or `Control`-clicking an link element. This behavior can't be turned off in `dwb`. It can be mitigated by using `xmodmap` to disable right mouse click and Control keys entirely.
+
+If you wish to restrict the user to specific sites the best way to do it would be on the network level. Use local or remote HTTP proxy with implemented access control list.
+
+## Visual appearance
+
+Appearance of kiosk can be tuned to some extent.
+
+* Changing GTK-3 theme (aplies only to scrollbars in `dwb`)
+* Changing cursor theme
+* Changing colors and fonts in `dwb` settings

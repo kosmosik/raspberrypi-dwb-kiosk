@@ -1,0 +1,7 @@
+#!/bin/bash
+DEVICE="eth0"
+# Get three last octets of HW address
+HWADDR=$(cat /sys/class/net/$DEVICE/address  | awk  -F  ":" '{ print $4 $5 $6 }')
+NEWHOSTNAME="kiosk-$HWADDR"
+hostname $NEWHOSTNAME
+exit 0
