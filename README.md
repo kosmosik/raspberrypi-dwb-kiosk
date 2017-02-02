@@ -7,24 +7,45 @@ This guide assumes you know your way around Linux systems, Rasberry Pi SBC and y
 
 Detailed step by step instructions are NOT in scope of this guide.
 
+## Files
+
+Most important config files and scripts are in `filesystem` directory in this repo. Reffer to them as they are mentioned in this guide.
+
+DO NOT COPY THE files to your system without inspecting them and understanding what they do since it will probably don't work for you that way.
+
 ## System preparation
 
-1. Download and install latest Raspbian image to SD card. I recommend starting with "lite" image.
-
+1. Download and write latest Raspbian image to SD card. I recommend starting with "lite" image.
 2. Boot the system and let it resize filesystem to SD card size (it does that automagically).
+3. Update system (`apt-get update && apt-get upgrade`).
+4. Consider converting the SD card to `F2FS` filesystem as described in [here](https://movr0.com/2016/08/19/convert-raspberry-pi-123-to-f2fs/).
+5. Consider using `tmpfs` (a ramdisk basically) for `/tmp`, `/var/log`, `/var/spool` and `/var/tmp` directories to minimise SD card writes. Some hints [here](https://www.domoticz.com/wiki/Setting_up_a_RAM_drive_on_Raspberry_Pi).
+6. Consider uninstalling all not required packages from system (`debfoster` is a handy tool that allows that).
+7. Configure network interfaces (wired or wireless) to your liking.
+8. Install, configure and enable OpenSSH daemon (`apt-get install ssh`) to allow remote shell access.
+9. Install, configure and enable NTP daemon (`apt-get install ntp ntpdate`) to enable network time synchronization.
+10. Install all required software (`apt-get install xorg dwb ratpoison xautolock`).
 
-3. Consider converting the SD card to `F2FS` filesystem as described in [here](https://movr0.com/2016/08/19/convert-raspberry-pi-123-to-f2fs/).
+## Boot config files
 
-4. Consider using `tmpfs` (a ramdisk basically) for `/tmp`, `/var/log`, `/var/spool` and `/var/tmp` directories to minimise SD card writes. Some hints [here](https://www.domoticz.com/wiki/Setting_up_a_RAM_drive_on_Raspberry_Pi).
+If you run into trouble getting video output please check options in `/boot/config.txt`. Reffer to [this article](http://elinux.org/RPiconfig).
 
-5. Consider uninstalling all not required packages from system. Nice tool that eases this task is `debfoster`.
+### Silent boot
 
-6. Install and configure required network services:
+If you wish to have completely silent (e.g. no information, scrolling letters, logos, etc.) boot please reffer to `/boot/cmdline.txt` file options. You can also disable getty on first console.
 
-..1. configure network interfaces (wired or wireless) to your liking,
+## Directory structure and user creation
 
-..2. install and enable OpenSSH daemon (`apt-get install ssh`) to allow remote shell access
+We will run kiosk user session as `kiosk` user.
 
-..3. install and enable NTP daemon (`apt-get install ntp ntpdate`)
+Create directory structure:
 
-7. Install all required software (`apt-get install xorg dwb ratpoison xautolock`)
+`/opt/bin` - kiosk scripts go here
+`/opt/etc` - kiosk config files go here
+`/opt/home/kiosk` - this is kiosk user home directory
+
+Create kiosk user with `/opt/home/kiosk` as home directory. Chown `/opt/home/kiosk` to kiosk user.
+
+## Display manager
+
+Kiosk uses `nodm` display manager to start XOrg under given user. Edit `/etc/defaults/nodm`.

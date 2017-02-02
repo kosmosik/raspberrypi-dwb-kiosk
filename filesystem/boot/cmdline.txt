@@ -1,0 +1,1 @@
+dwc_otg.lpm_enable=0 console=tty3 loglevel=3 quiet logo.nologo root=/dev/mmcblk0p2 rootfstype=f2fs elevator=deadline fsck.repair=no rootwait
