@@ -46,25 +46,29 @@ Create kiosk user with `/opt/home/kiosk` as home directory. Chown `/opt/home/kio
 
 ## Display manager
 
-Kiosk uses `nodm` display manager to start XOrg under given user. Check `/etc/defaults/nodm` for configuration. This service needs to be enabled and started on boot.
+Kiosk uses [nodm](https://github.com/spanezz/nodm) display manager to start XOrg under given user. Check `/etc/defaults/nodm` for configuration. This service needs to be enabled and started on boot.
 
 ## Xinit
 
 Display manager starts XOrg as user `kiosk` and starts `/opt/bin/xinit-kiosk` script. This script controls execution of kiosk session.
 
+### xautolock
+
+Xinit script launches [xautolock](https://linux.die.net/man/1/xautolock) program. `xautolock` implements session reseting after inactivity. After 1 minute of inactivity `xautolock` sends command to `dwb` to close all but one tabs and load start page.
+
 ## Window manager
 
-Kiosk uses `ratpoison` as fullscreen window manager. Ratpoison is used only to display single application fullscreen and also catch some keys pressed by the user. Ratpoison is configured in '/opt/etc/ratpoisonrc'.
+Kiosk uses [Ratpoison](http://www.nongnu.org/ratpoison/) as fullscreen window manager. Ratpoison is used only to display single application fullscreen and also catch some keys pressed by the user. Ratpoison is configured in '/opt/etc/ratpoisonrc'. Refer to [ratpoison manual](http://www.nongnu.org/ratpoison/doc/)
 
 ### Window manager defined keybindings
 
 Ratpoison config implements few keybindings:
 
-<key>F1</key> key - send command to dwb to open home page
-`F5` key - send command to dwb to reload current tab
-`Control+F12` keys - send command to dwb to quit (thus ending X session, thus restarting it via nodm)
+`F1` key - send command to `dwb` to open home page
 
+`F5` key - send command to `dwb` to reload current tab
 
+`Control+F12` keys - send command to `dwb` to quit (thus ending X session, thus restarting it via nodm)
 
 
 
